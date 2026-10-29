@@ -10,21 +10,23 @@ gráficas **PySide6**.
 
 ## Paso 1 — Organización de archivos
 
-El script debe empezar llamando a `extraer_orderar.sh`.
+El script debe empezar llamando a `extraer_ordenar.sh` con dos argumentos:
 
-> **Nota:** `extraer_orderar.sh` todavía no está en el repositorio. Supón que
-> ya existe y que funciona como se describe abajo.
+```bash
+./extraer_ordenar.sh <archivo.zip> <directorio_destino>
+```
 
-Al ejecutarse, `extraer_orderar.sh` crea subcarpetas dentro del **directorio
-destino** según las extensiones que encuentre y mueve cada archivo a la que le
-corresponde. Puede organizarlos de dos formas:
+`extraer_ordenar.sh` extrae el zip y crea subcarpetas dentro del **directorio
+destino** según la extensión de cada archivo:
 
-| Por categoría  | Por extensión |
-| -------------- | ------------- |
-| `documentos/`  | `txt/`        |
-| `imagenes/`    | `jpg/`        |
-| `codigo/`      | `py/`         |
-| `otros/`       | …             |
+| Carpeta        | Extensiones (ejemplos)          |
+| -------------- | ------------------------------- |
+| `codigo/`      | `py`, `js`, `sh`, `c`, `java`   |
+| `imagenes/`    | `png`, `jpg`, `gif`, `svg`      |
+| `documentos/`  | `pdf`, `docx`, `txt`, `md`      |
+| `datos/`       | `csv`, `xlsx`, `json`, `xml`    |
+| `audio/`       | `mp3`, `wav`, `ogg`             |
+| `otros/`       | Todo lo demás                   |
 
 ---
 
@@ -58,11 +60,11 @@ Al terminar, mostrar:
 ## Ejemplo de salida esperada
 
 ```text
-Archivo: destino/py/ventana.py
+Archivo: destino/codigo/ventana.py
   Contiene PySide6: SÍ
     Línea 1: from PySide6.QtWidgets import QApplication, QLabel
 
-Archivo: destino/py/hola.py
+Archivo: destino/codigo/hola.py
   Contiene PySide6: NO
 
 ==================== RESUMEN ====================
