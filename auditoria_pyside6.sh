@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
-# auditoria_cv2.sh
+# auditoria_pyside6.sh
 #
 # 1. Ejecuta extraer_orderar.sh para organizar los archivos del directorio
 #    origen en subcarpetas (por tipo o extensión) dentro del directorio destino.
-# 2. Audita los archivos .py resultantes buscando el uso de visión por
-#    computadora (cv2 / import cv2 / opencv).
+# 2. Audita los archivos .py resultantes buscando el uso de la librería
+#    de interfaces gráficas PySide6 (import PySide6 / from PySide6 ...).
 #
-# Uso: ./auditoria_cv2.sh <directorio_origen> <directorio_destino>
+# Uso: ./auditoria_pyside6.sh <directorio_origen> <directorio_destino>
 
 set -uo pipefail
 
@@ -29,8 +29,8 @@ DESTINO="$2"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPT_ORDENAR="$SCRIPT_DIR/extraer_orderar.sh"
 
-# Términos clave de visión por computadora (regex extendida, sin distinguir mayúsculas)
-PATRON='\bcv2\b|opencv'
+# Librería buscada (regex extendida, sin distinguir mayúsculas)
+PATRON='\bPySide6\b'
 
 # --- Paso 1: organizar archivos --------------------------------------------
 if [[ ! -f "$SCRIPT_ORDENAR" ]]; then
@@ -57,7 +57,7 @@ echo "${NEGRITA}==> Auditoría de código: buscando '$PATRON' en archivos .py${R
 echo
 
 total=0
-con_cv2=0
+con_pyside6=0
 
 while IFS= read -r -d '' archivo; do
     (( total++ ))
@@ -65,13 +65,13 @@ while IFS= read -r -d '' archivo; do
 
     coincidencias="$(grep -nEi "$PATRON" "$archivo")"
     if [[ -n "$coincidencias" ]]; then
-        (( con_cv2++ ))
-        echo "  Contiene cv2: ${VERDE}SÍ${RESET}"
+        (( con_pyside6++ ))
+        echo "  Contiene PySide6: ${VERDE}SÍ${RESET}"
         while IFS= read -r linea; do
             echo "    Línea ${linea%%:*}: ${linea#*:}"
         done <<< "$coincidencias"
     else
-        echo "  Contiene cv2: ${ROJO}NO${RESET}"
+        echo "  Contiene PySide6: ${ROJO}NO${RESET}"
     fi
     echo
 done < <(find "$DESTINO" -type f -name '*.py' -print0 | sort -z)
@@ -81,8 +81,8 @@ echo "${NEGRITA}==================== RESUMEN ====================${RESET}"
 if (( total == 0 )); then
     echo "${AMARILLO}No se encontraron archivos .py en '$DESTINO'.${RESET}"
 else
-    echo "Archivos .py analizados:  $total"
-    echo "Archivos que usan cv2:    $con_cv2"
-    echo "Archivos sin cv2:         $(( total - con_cv2 ))"
+    echo "Archivos .py analizados:   $total"
+    echo "Archivos que usan PySide6: $con_pyside6"
+    echo "Archivos sin PySide6:      $(( total - con_pyside6 ))"
 fi
 echo "${NEGRITA}=================================================${RESET}"

@@ -1,10 +1,10 @@
-# Especificación: Script de organización y auditoría de código (cv2)
+# Especificación: Script de organización y auditoría de código (PySide6)
 
 ## Objetivo
 
 Crear un script en **Bash** que organice archivos por tipo y luego audite los
-archivos Python resultantes para detectar el uso de la librería de visión por
-computadora **OpenCV (`cv2`)**.
+archivos Python resultantes para detectar el uso de la librería de interfaces
+gráficas **PySide6**.
 
 ---
 
@@ -33,41 +33,41 @@ corresponde. Puede organizarlos de dos formas:
 Con los archivos ya organizados, el script debe:
 
 1. **Recorrer solo los archivos `.py`**: usar su carpeta o filtrar por extensión.
-2. **Buscar términos clave** de visión por computadora o procesamiento de imágenes:
-   - `cv2`
-   - `import cv2`
-   - `opencv`
+2. **Buscar el uso de la librería PySide6**, por ejemplo:
+   - `import PySide6`
+   - `from PySide6 import ...`
+   - `from PySide6.QtWidgets import ...`
 
 ### Salida en terminal (por cada archivo `.py`)
 
-| Dato              | Descripción                                                   |
-| ----------------- | ------------------------------------------------------------- |
-| Archivo           | Nombre o ruta del archivo analizado                           |
-| ¿Contiene `cv2`?  | Sí / No                                                       |
-| Coincidencias     | Número de línea y la línea exacta de cada coincidencia (`grep -n`) |
+| Dato                  | Descripción                                                        |
+| --------------------- | ------------------------------------------------------------------ |
+| Archivo               | Nombre o ruta del archivo analizado                                |
+| ¿Contiene `PySide6`?  | Sí / No                                                            |
+| Coincidencias         | Número de línea y la línea exacta de cada coincidencia (`grep -n`) |
 
 ### Resumen final
 
 Al terminar, mostrar:
 
 - Total de archivos `.py` analizados.
-- Cuántos de ellos usan la librería `cv2`.
+- Cuántos de ellos usan la librería `PySide6`.
 
 ---
 
 ## Ejemplo de salida esperada
 
 ```text
-Archivo: destino/py/vision.py
-  Contiene cv2: SÍ
-    Línea 1: import cv2
-    Línea 2: img = cv2.imread("a.jpg")
+Archivo: destino/py/ventana.py
+  Contiene PySide6: SÍ
+    Línea 1: from PySide6.QtWidgets import QApplication, QLabel
 
 Archivo: destino/py/hola.py
-  Contiene cv2: NO
+  Contiene PySide6: NO
 
 ==================== RESUMEN ====================
-Archivos .py analizados:  2
-Archivos que usan cv2:    1
+Archivos .py analizados:   2
+Archivos que usan PySide6: 1
+Archivos sin PySide6:      1
 =================================================
 ```
