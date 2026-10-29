@@ -6,6 +6,7 @@
 #    en subcarpetas por tipo (codigo/, imagenes/, ...) dentro del directorio destino.
 # 2. Audita los archivos .py resultantes buscando el uso de la librería
 #    de interfaces gráficas PySide6 (import PySide6 / from PySide6 ...).
+# 3. Mueve los archivos que usan PySide6 a la subcarpeta codigo/pyside6/.
 #
 # Uso: ./auditoria_pyside6.sh <archivo.zip> <directorio_destino>
 
@@ -26,11 +27,16 @@ fi
 
 ZIP="$1"
 DESTINO="$2"
+# Quita las "/" finales para que las rutas se comparen bien ("destino/" -> "destino")
+while [[ "$DESTINO" == */ && "$DESTINO" != "/" ]]; do DESTINO="${DESTINO%/}"; done
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPT_ORDENAR="$SCRIPT_DIR/extraer_ordenar.sh"
 
 # Librería buscada (regex extendida, sin distinguir mayúsculas)
 PATRON='\bPySide6\b'
+
+# Carpeta a la que se mueven los archivos que usan PySide6
+DIR_PYSIDE6="$DESTINO/codigo/pyside6"
 
 # --- Paso 1: organizar archivos --------------------------------------------
 if [[ ! -f "$SCRIPT_ORDENAR" ]]; then
@@ -58,6 +64,20 @@ echo
 
 total=0
 con_pyside6=0
+mkdir -p "$DIR_PYSIDE6"
+
+# Mueve un archivo a DIR_PYSIDE6 sin sobrescribir: agrega sufijo _1, _2, ...
+mover_a_pyside6() {
+    local origen="$1" nombre final n=1
+    nombre="$(basename "$origen")"
+    final="$DIR_PYSIDE6/$nombre"
+    while [[ -e "$final" ]]; do
+        final="$DIR_PYSIDE6/${nombre%.*}_$n.${nombre##*.}"
+        (( n++ ))
+    done
+    mv "$origen" "$final"
+    echo "$final"
+}
 
 while IFS= read -r -d '' archivo; do
     (( total++ ))
@@ -70,6 +90,11 @@ while IFS= read -r -d '' archivo; do
         while IFS= read -r linea; do
             echo "    Línea ${linea%%:*}: ${linea#*:}"
         done <<< "$coincidencias"
+
+        # Los que ya están en codigo/pyside6/ (de una corrida anterior) se quedan ahí
+        if [[ "$(dirname "$archivo")" != "$DIR_PYSIDE6" ]]; then
+            echo "  Movido a: $(mover_a_pyside6 "$archivo")"
+        fi
     else
         echo "  Contiene PySide6: ${ROJO}NO${RESET}"
     fi
@@ -84,5 +109,6 @@ else
     echo "Archivos .py analizados:   $total"
     echo "Archivos que usan PySide6: $con_pyside6"
     echo "Archivos sin PySide6:      $(( total - con_pyside6 ))"
+    echo "Archivos con PySide6 en:   $DIR_PYSIDE6/"
 fi
 echo "${NEGRITA}=================================================${RESET}"
