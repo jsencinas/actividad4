@@ -2,12 +2,12 @@
 #
 # auditoria_pyside6.sh
 #
-# 1. Ejecuta extraer_orderar.sh para organizar los archivos del directorio
-#    origen en subcarpetas (por tipo o extensión) dentro del directorio destino.
+# 1. Ejecuta extraer_ordenar.sh para extraer el zip y organizar sus archivos
+#    en subcarpetas por tipo (codigo/, imagenes/, ...) dentro del directorio destino.
 # 2. Audita los archivos .py resultantes buscando el uso de la librería
 #    de interfaces gráficas PySide6 (import PySide6 / from PySide6 ...).
 #
-# Uso: ./auditoria_pyside6.sh <directorio_origen> <directorio_destino>
+# Uso: ./auditoria_pyside6.sh <archivo.zip> <directorio_destino>
 
 set -uo pipefail
 
@@ -20,14 +20,14 @@ fi
 
 # --- Validación de argumentos ----------------------------------------------
 if [[ $# -ne 2 ]]; then
-    echo "Uso: $0 <directorio_origen> <directorio_destino>" >&2
+    echo "Uso: $0 <archivo.zip> <directorio_destino>" >&2
     exit 1
 fi
 
-ORIGEN="$1"
+ZIP="$1"
 DESTINO="$2"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SCRIPT_ORDENAR="$SCRIPT_DIR/extraer_orderar.sh"
+SCRIPT_ORDENAR="$SCRIPT_DIR/extraer_ordenar.sh"
 
 # Librería buscada (regex extendida, sin distinguir mayúsculas)
 PATRON='\bPySide6\b'
@@ -39,7 +39,7 @@ if [[ ! -f "$SCRIPT_ORDENAR" ]]; then
 fi
 
 echo "${NEGRITA}==> Organizando archivos con $(basename "$SCRIPT_ORDENAR")...${RESET}"
-if ! bash "$SCRIPT_ORDENAR" "$ORIGEN" "$DESTINO"; then
+if ! bash "$SCRIPT_ORDENAR" "$ZIP" "$DESTINO"; then
     echo "${ROJO}Error:${RESET} $(basename "$SCRIPT_ORDENAR") terminó con errores" >&2
     exit 1
 fi
@@ -51,7 +51,7 @@ fi
 
 # --- Paso 2: auditoría de código Python ------------------------------------
 # Se buscan los .py en cualquier subcarpeta del destino, así funciona tanto si
-# el organizador los dejó en py/ como en codigo/.
+# el organizador los dejó en codigo/ como en py/.
 echo
 echo "${NEGRITA}==> Auditoría de código: buscando '$PATRON' en archivos .py${RESET}"
 echo
@@ -74,7 +74,7 @@ while IFS= read -r -d '' archivo; do
         echo "  Contiene PySide6: ${ROJO}NO${RESET}"
     fi
     echo
-done < <(find "$DESTINO" -type f -name '*.py' -print0 | sort -z)
+done < <(find "$DESTINO" -type f -iname '*.py' -print0 | sort -z)
 
 # --- Resumen final ---------------------------------------------------------
 echo "${NEGRITA}==================== RESUMEN ====================${RESET}"
