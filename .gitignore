@@ -1,0 +1,18 @@
+# Subcarpetas que crea extraer_ordenar.sh dentro del directorio destino
+codigo/
+imagenes/
+documentos/
+datos/
+audio/
+otros/
+
+# Directorio destino usado en los ejemplos del README
+destino/
+
+# Archivo de entrada (47 MB, binario)
+*.zip
+
+# Metadatos de macOS
+__MACOSX/
+.DS_Store
+._*
